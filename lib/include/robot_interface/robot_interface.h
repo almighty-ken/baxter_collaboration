@@ -18,6 +18,7 @@
 #include <geometry_msgs/Point.h>
 #include <sensor_msgs/Range.h>
 #include <std_msgs/Empty.h>
+#include <math.h>
 
 #include "robot_utils/utils.h"
 
@@ -84,6 +85,8 @@ private:
      */
     ros::Subscriber         _jntstate_sub;
     sensor_msgs::JointState    _curr_jnts;
+
+    std::vector<double>     _prev_joint_angles;
 
     // Mutex to protect joint state variable
     pthread_mutex_t _mutex_jnts;
@@ -272,6 +275,15 @@ protected:
     bool computeIK(double px, double py, double pz,
                    double ox, double oy, double oz, double ow,
                    std::vector<double>& joint_angles);
+
+    bool initPrevJointAngles();
+
+    float vector_norm(std::vector<double> v);
+
+    bool updateVelocities(double px, double py, double pz,
+                                     double ox, double oy, double oz, double ow);
+
+    bool publishVelocities(std::vector<double> joint_velocities);
 
     /*
      * Moves arm to the requested pose. This differs from RobotInterface::goToPose because it
