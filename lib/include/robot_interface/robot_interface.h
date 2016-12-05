@@ -281,7 +281,8 @@ protected:
     float vector_norm(std::vector<double> v);
 
     bool updateVelocities(double px, double py, double pz,
-                                     double ox, double oy, double oz, double ow);
+                                     double ox, double oy, double oz,
+                                     double ow, double time);
 
     bool publishVelocities(std::vector<double> joint_velocities);
 

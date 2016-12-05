@@ -330,22 +330,15 @@ bool RobotInterface::initPrevJointAngles() {
 }
 
 bool RobotInterface::updateVelocities(double px, double py, double pz,
-                                     double ox, double oy, double oz, double ow)
+                                     double ox, double oy, double oz, double ow,
+                                     double time)
 {
-    ROS_INFO("Prev angles: %f %f %f %f %f %f %f", _prev_joint_angles[0], _prev_joint_angles[1], _prev_joint_angles[2], _prev_joint_angles[3], _prev_joint_angles[4], _prev_joint_angles[5], _prev_joint_angles[6]);
     vector<double> joint_velocities;
-    vector<double> joint_differences;
     vector<double> new_joint_angles;
     if (!computeIK(px, py, pz, ox, oy, oz, ow, new_joint_angles)) return false;
     for (int i = 0; i < new_joint_angles.size(); ++i) {
-        joint_differences.push_back(new_joint_angles[i] - _prev_joint_angles[i]);
+        joint_velocities.push_back((new_joint_angles[i] - _prev_joint_angles[i]) / time);
     }
-    float difference_norm = vector_norm(joint_differences);
-    for (int i = 0; i < joint_differences.size(); ++i) {
-        joint_velocities.push_back((joint_differences[i] / difference_norm) * PICK_UP_SPEED);
-    }
-    ROS_INFO("new angles: %f %f %f %f %f %f %f", new_joint_angles[0], new_joint_angles[1], new_joint_angles[2], new_joint_angles[3], new_joint_angles[4], new_joint_angles[5], new_joint_angles[6]);
-    // ROS_INFO("Velocities: %f %f %f %f %f %f %f", joint_velocities[0], joint_velocities[1], joint_velocities[2], joint_velocities[3], joint_velocities[4], joint_velocities[5], joint_velocities[6]);
     publishVelocities(joint_velocities);
 
     // new joint angles becomes prev joint angles
