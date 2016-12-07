@@ -446,6 +446,9 @@ public:
     geometry_msgs::Quaternion   getOri()    { return    _curr_ori; };
     geometry_msgs::Wrench       getWrench() { return _curr_wrench; };
 
+    std::vector<double> getJointPos();
+    std::vector<std::string> getJointNames();
+
     geometry_msgs::Pose         getPose();
 
     bool getIKLimits(KDL::JntArray &ll, KDL::JntArray &ul);
