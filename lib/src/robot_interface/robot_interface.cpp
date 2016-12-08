@@ -337,18 +337,19 @@ bool RobotInterface::updateVelocities(double px, double py, double pz,
     vector<double> test_joint_velocities;
     vector<double> joint_velocities;
     if (!computeIK(px, py, pz, ox, oy, oz, ow, new_joint_angles)) return false;
-    vector<double> curr_joint_angles;
-    if (!computeIK(getPos().x, getPos().y, getPos().z, getOri().x, getOri().y, getOri().z, getOri().w, curr_joint_angles)) return false;
-    ROS_INFO_THROTTLE(0.1, "curr x: %f curr y: %f curr z: %f", getPos().x, getPos().y, getPos().z);
-    ROS_INFO_THROTTLE(0.1, "px: %f py: %f pz: %f", px, py, pz);
-    ROS_INFO_THROTTLE(0.1,"cur angles: %f %f %f %f %f %f %f", curr_joint_angles[0], curr_joint_angles[1], curr_joint_angles[2], curr_joint_angles[3], curr_joint_angles[4], curr_joint_angles[5], curr_joint_angles[6]);
-    ROS_INFO_THROTTLE(0.1,"new angles: %f %f %f %f %f %f %f", new_joint_angles[0], new_joint_angles[1], new_joint_angles[2], new_joint_angles[3], new_joint_angles[4], new_joint_angles[5], new_joint_angles[6]);
+    vector<double> curr_joint_angles = getJointPos();
+    // if (!computeIK(getPos().x, getPos().y, getPos().z, getOri().x, getOri().y, getOri().z, getOri().w, curr_joint_angles)) return false;
+    ROS_INFO( "curr x: %f curr y: %f curr z: %f", getPos().x, getPos().y, getPos().z);
+    ROS_INFO( "px: %f py: %f pz: %f", px, py, pz);
+    ROS_INFO("cur angles: %f %f %f %f %f %f %f", curr_joint_angles[0], curr_joint_angles[1], curr_joint_angles[2], curr_joint_angles[3], curr_joint_angles[4], curr_joint_angles[5], curr_joint_angles[6]);
+    ROS_INFO("new angles: %f %f %f %f %f %f %f", new_joint_angles[0], new_joint_angles[1], new_joint_angles[2], new_joint_angles[3], new_joint_angles[4], new_joint_angles[5], new_joint_angles[6]);
     for (int i = 0; i < new_joint_angles.size(); ++i) {
-        test_joint_velocities.push_back((new_joint_angles[i] - curr_joint_angles[i]) / time);
+        test_joint_velocities.push_back((new_joint_angles[i] - curr_joint_angles[i]) / (time*20));
         joint_velocities.push_back(0);
     }
-    ROS_INFO_THROTTLE(0.1,"velocities: %f %f %f %f %f %f %f", test_joint_velocities[0], test_joint_velocities[1], test_joint_velocities[2], test_joint_velocities[3], test_joint_velocities[4], test_joint_velocities[5], test_joint_velocities[6]);
-    publishVelocities(joint_velocities);
+
+    ROS_INFO("velocities: %f %f %f %f %f %f %f", test_joint_velocities[0], test_joint_velocities[1], test_joint_velocities[2], test_joint_velocities[3], test_joint_velocities[4], test_joint_velocities[5], test_joint_velocities[6]);
+    publishVelocities(test_joint_velocities);
 
 }
 
