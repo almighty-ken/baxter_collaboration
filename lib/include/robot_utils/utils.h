@@ -41,7 +41,9 @@
 
 #define Z_HIGH         0.400
 #define Z_LOW          0.200
-#define PICK_UP_SPEED  0.120    // [m/s]
+
+#define ARM_SPEED      0.120    // [m/s]
+#define ARM_ROT_SPEED  1.000    // [rad/s] ?
 
 #define FORCE_THRES_R   2.0  // [N]
 #define FORCE_THRES_L   2.0  // [N]
@@ -60,6 +62,8 @@
 
 #define HOME_POS_L   0.65,  0.45
 #define HOME_POS_R   0.65, -0.25
+
+#define EPSILON         1e-8
 
 /*
  * sets the position of a pose
@@ -87,6 +91,115 @@ void setOrientation(geometry_msgs::Pose& pose, float x, float y, float z, float 
  * return     converted string
  */
 std::string intToString( const int a );
+
+/**
+ * Norm of a vector
+ *
+ * @param  vector<double> the 3D point as vector
+ * @return                the norm of the vector
+ */
+double norm(std::vector<double> const& _v);
+
+/**
+ * Norm of a geometry_msgs::Point
+ *
+ * @param  geometry_msgs::Point the 3D point
+ * @return                      the norm of the point
+ */
+double norm(const geometry_msgs::Point & _v);
+
+/**
+ * Operator + (sum) between two geometry_msgs::Points
+ *
+ * @param  a the first point
+ * @param  b the second point
+ * @return   the sum of the two
+ */
+geometry_msgs::Point operator+ (const geometry_msgs::Point& a, const geometry_msgs::Point& b);
+
+/**
+ * Operator - (difference) between two geometry_msgs:Points
+ *
+ * @param  a the first point
+ * @param  b the second point
+ * @return   the difference of the two (i.e. a - b)
+ */
+geometry_msgs::Point operator- (const geometry_msgs::Point& a, const geometry_msgs::Point& b);
+
+/**
+ * Operator == (equality) between two geometry_msgs::Points
+ *
+ * @param  a the first point
+ * @param  b the second point
+ * @return   true/false if a==b or not
+ */
+bool                 operator==(const geometry_msgs::Point& a, const geometry_msgs::Point& b);
+
+/**
+ * Operator * (addition)       between a geometry_msgs::Point and a double
+ *
+ * @param  a the first point
+ * @param  b the double to sum a with
+ * @return   the element-by-element sum of a with b
+ */
+geometry_msgs::Point operator+ (const geometry_msgs::Point& a, const double& b);
+
+/**
+ * Operator - (subtraction)    between a geometry_msgs::Point and a double
+ *
+ * @param  a the first point
+ * @param  b the double to subtract a with
+ * @return   the element-by-element subtraction of a with b
+ */
+geometry_msgs::Point operator- (const geometry_msgs::Point& a, const double& b);
+
+/**
+ * Operator * (multiplication) between a geometry_msgs::Point and a double
+ *
+ * @param  a the first point
+ * @param  b the double to multiply a with
+ * @return   the element-by-element multiplication of a with b
+ */
+geometry_msgs::Point operator* (const geometry_msgs::Point& a, const double& b);
+
+/**
+ * Operator / (division)       between a geometry_msgs::Point and a double
+ *
+ * @param  a the first point
+ * @param  b the double to divide a with
+ * @return   the element-by-element division of a with b
+ */
+geometry_msgs::Point operator/ (const geometry_msgs::Point& a, const double& b);
+
+/**
+ * Dot, or scalar, product between two geometry_msgs::Points
+ *
+ * @param  a the first point
+ * @param  b the second point
+ * @return   the dot product
+ */
+double dot(const geometry_msgs::Point& a, const geometry_msgs::Point& b);
+
+/**
+ * Print function for a geometry_msgs::Point.
+ *
+ * @return A text description of the Point.
+ */
+std::string print(geometry_msgs::Point p);
+
+/**
+ * Print function for a geometry_msgs::Quaternion.
+ *
+ * @return A text description of the Quaternion.
+ */
+std::string print(geometry_msgs::Quaternion q);
+
+/**
+ * Print function for a geometry_msgs::Pose.
+ *
+ * @return A text description of the Pose.
+ */
+std::string print(geometry_msgs::Pose p);
 
 /**
  * Struct that handles the state of the RobotInterface Class
