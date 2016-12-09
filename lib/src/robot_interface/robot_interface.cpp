@@ -60,6 +60,7 @@ RobotInterface::RobotInterface(string name, string limb, bool no_robot, bool use
     _curr_max_range = 0;
     _curr_min_range = 0;
     _curr_range     = 0;
+    ctrl_mode = 0;
 
     _filt_force.push_back(0.0);
     _filt_force.push_back(0.0);
@@ -385,7 +386,7 @@ bool RobotInterface::goToPoseNoCheck(geometry_msgs::Point p, geometry_msgs::Quat
 
 float RobotInterface::vector_norm(vector<double> v) {
     double tot = 0;
-    for (int i = 0; i < v.size(); ++i) {
+    for (size_t i = 0; i < v.size(); ++i) {
         tot += (v[i] * v[i]);
     }
     return sqrt(tot);
@@ -411,20 +412,21 @@ bool RobotInterface::updateVelocities(double px, double py, double pz,
     ROS_INFO( "px: %f py: %f pz: %f", px, py, pz);
     ROS_INFO("cur angles: %f %f %f %f %f %f %f", curr_joint_angles[0], curr_joint_angles[1], curr_joint_angles[2], curr_joint_angles[3], curr_joint_angles[4], curr_joint_angles[5], curr_joint_angles[6]);
     ROS_INFO("new angles: %f %f %f %f %f %f %f", new_joint_angles[0], new_joint_angles[1], new_joint_angles[2], new_joint_angles[3], new_joint_angles[4], new_joint_angles[5], new_joint_angles[6]);
-    for (int i = 0; i < new_joint_angles.size(); ++i) {
+    for (size_t i = 0; i < new_joint_angles.size(); ++i) {
         test_joint_velocities.push_back((new_joint_angles[i] - curr_joint_angles[i]) / (time*20));
         joint_velocities.push_back(0);
     }
 
     ROS_INFO("velocities: %f %f %f %f %f %f %f", test_joint_velocities[0], test_joint_velocities[1], test_joint_velocities[2], test_joint_velocities[3], test_joint_velocities[4], test_joint_velocities[5], test_joint_velocities[6]);
     publishVelocities(test_joint_velocities);
+    return true;
 
 }
 
 std::vector<double> RobotInterface::getJointPos() {
     std::vector<double> angles;
     std::vector<std::string> names = getJointNames();
-    for (int i = 0, j = 0; i < _curr_jnts.position.size(); ++i){
+    for (size_t i = 0, j = 0; i < _curr_jnts.position.size(); ++i){
         if (_curr_jnts.name[i] == names[j]) {
             // std::cout << _curr_jnts.name[i] << " " << _curr_jnts.position[i] << "\n";
             angles.push_back(_curr_jnts.position[i]);
@@ -440,7 +442,7 @@ bool RobotInterface::publishVelocities(vector<double> joint_velocities) {
 
     setJointNames(joint_cmd);
 
-    for (int i = 0; i < joint_velocities.size(); i++)
+    for (size_t i = 0; i < joint_velocities.size(); i++)
     {
         joint_cmd.command.push_back(joint_velocities[i]);
     }
@@ -462,13 +464,19 @@ bool RobotInterface::goToPoseNoCheck(double px, double py, double pz,
 bool RobotInterface::goToJointConfNoCheck(vector<double> joint_angles)
 {
     JointCommand joint_cmd;
-    joint_cmd.mode = JointCommand::POSITION_MODE;
-
     setJointNames(joint_cmd);
-
-    for (size_t i = 0; i < joint_angles.size(); i++)
-    {
-        joint_cmd.command.push_back(joint_angles[i]);
+    if (ctrl_mode == 0) {
+        joint_cmd.mode = JointCommand::POSITION_MODE;
+        for (size_t i = 0; i < joint_angles.size(); i++) {
+            joint_cmd.command.push_back(joint_angles[i]);
+        }
+    } else {
+        joint_cmd.mode = JointCommand::VELOCITY_MODE;
+        vector<double> curr_joint_angles = getJointPos();
+        vector<double> joint_velocities;
+        for (size_t i = 0; i < joint_angles.size(); ++i) {
+            joint_cmd.command.push_back((joint_angles[i] - curr_joint_angles[i]) / (0.01*20));
+        }
     }
 
     publish_joint_cmd(joint_cmd);
